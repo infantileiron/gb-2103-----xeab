@@ -1,0 +1,1 @@
+import {useResource} from '../hooks/useResource';import {listReports} from '../api/reports';export const useReports=()=>useResource(listReports,[]);

@@ -1,0 +1,1 @@
+import {api} from './client';import type {Dataset} from '../types';export const listDatasets=()=>api<Dataset[]>('/datasets');export const getDataset=(id:string)=>api<Dataset>('/datasets/'+id);export const createDataset=(data:unknown)=>api<Dataset>('/datasets','POST',data);

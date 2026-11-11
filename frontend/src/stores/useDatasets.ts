@@ -1,0 +1,1 @@
+import {useResource} from '../hooks/useResource';import {listDatasets} from '../api/datasets';export const useDatasets=()=>useResource(listDatasets,[]);

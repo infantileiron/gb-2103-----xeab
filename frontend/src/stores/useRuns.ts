@@ -1,0 +1,1 @@
+import {useResource} from '../hooks/useResource';import {listRuns} from '../api/runs';export const useRuns=()=>useResource(listRuns,[],5000);

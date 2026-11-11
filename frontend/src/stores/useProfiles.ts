@@ -1,0 +1,1 @@
+import {useResource} from '../hooks/useResource';import {listProfiles} from '../api/profiles';export const useProfiles=(id:string)=>useResource(()=>id?listProfiles(id):Promise.resolve([]),[id]);

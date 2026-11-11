@@ -1,0 +1,1 @@
+import {api} from './client';import type {Profile} from '../types';export const listProfiles=(run_id:string)=>api<Profile[]>('/profiles?run_id='+run_id);export const updateProfile=(id:string,data:{name:string;notes:string})=>api<Profile>('/profiles/'+id,'PATCH',data);

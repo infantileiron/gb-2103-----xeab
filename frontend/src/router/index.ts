@@ -1,0 +1,1 @@
+export const NAV=[{id:'overview',name:'航测概览',number:'01'},{id:'datasets',name:'采样台账',number:'02'},{id:'studies',name:'分型配置',number:'03'},{id:'results',name:'分型解释',number:'04'},{id:'reports',name:'成果归档',number:'05'}];export const getPage=()=>location.hash.slice(1)||'overview';

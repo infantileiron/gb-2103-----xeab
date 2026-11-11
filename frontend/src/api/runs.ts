@@ -1,0 +1,1 @@
+import {api} from './client';import type {Run} from '../types';export const listRuns=()=>api<Run[]>('/runs');export const createRun=(study_id:string)=>api<Run>('/runs','POST',{study_id});

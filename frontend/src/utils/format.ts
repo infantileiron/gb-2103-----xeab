@@ -1,0 +1,1 @@
+export const number=(v:number,d=2)=>Number.isFinite(v)?v.toLocaleString('zh-CN',{maximumFractionDigits:d}):'—';export const time=(v:string)=>new Date(v).toLocaleString('zh-CN',{hour12:false});

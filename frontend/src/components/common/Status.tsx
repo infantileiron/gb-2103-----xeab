@@ -1,0 +1,1 @@
+import {RUN_STATUS,REPORT_STATUS} from '../../constants/enums';export function Status({value}:{value:string}){return <span className={'status '+value}>{({...RUN_STATUS,...REPORT_STATUS} as Record<string,string>)[value]||value}</span>}

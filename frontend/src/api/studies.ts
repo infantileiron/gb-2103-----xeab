@@ -1,0 +1,1 @@
+import {api} from './client';import type {Study} from '../types';export const listStudies=()=>api<Study[]>('/studies');export const createStudy=(data:unknown)=>api<Study>('/studies','POST',data);

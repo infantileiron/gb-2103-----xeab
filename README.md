@@ -93,10 +93,14 @@ docker compose exec -T backend python -m scripts.seed_demo
 | REDIS_URL | Compose注入 redis://redis:6379/0 |
 | TASK_MODE | Compose固定redis；本地单进程验证可显式设inline |
 | ARTIFACT_DIR | 共享产物目录 /artifacts；worker保存每次结果JSON |
+| RUN_LEASE_SECONDS | 租约时长，默认120；心跳按1/3周期续租，超时视为worker退出并回收 |
+| RUN_MAX_ATTEMPTS | 最大尝试次数，默认5；超出后标记failed等待人工处理 |
+| RECOVERY_INTERVAL_SECONDS | 卡住任务扫描间隔，默认30 |
+| WORKER_ID | worker标识，默认 主机名-PID-随机后缀；用于租约归属与击剑校验 |
 
 Compose恰好五个服务 `frontend/backend/worker/db/redis`，均设真实健康检查。backend等待db与redis；worker还等待backend完成初始化；frontend等待backend。三个命名卷分别保存数据库、Redis和计算产物。Redis与worker不映射宿主端口。Nginx `/api/` 去除代理前缀，后端路由为 `/datasets` 等，无双重api前缀。中文上层目录通过显式Compose项目名避免非法命名；实际中文路径容器启动仍待Docker验收。
 
-后台任务采用Redis BLPOP单worker消费；若进程在取出任务后异常退出，尚不自动恢复该任务，需要研究员重跑。迁移目前为初始建表，不提供跨版本字段升级。默认无外部邮件或定时分发服务。
+后台任务采用Redis BLPOP单worker消费，并以数据库租约（lease）+心跳实现崩溃恢复：worker认领运行时原子地把 `queued/failed/过期running` 置为 `running`、递增 `attempt` 并记录 `lease_owner/leased_at`，计算期间心跳线程按租约1/3周期续租；worker启动时及之后每 `RECOVERY_INTERVAL_SECONDS` 秒扫描一次，把丢消息的 `queued` 和租约过期的 `running` 重新入队。重复投递是安全的——认领的条件UPDATE保证同一运行只有一个执行者，重复消息在认领阶段被跳过，不会重复生成 profiles/生态类型；已完成或已归档的运行永不重新执行。提交与失败落库都带 `(attempt, lease_owner)` 击剑校验，僵尸worker复活后的旧计算不能覆盖新结果，产物文件同样只在不存在时落盘。达到 `RUN_MAX_ATTEMPTS` 次仍未完成的任务标记为 failed 等待人工介入。迁移在 `001_initial.sql` 之外，`database.initialize()` 会对旧库自动补 `attempt/lease_owner/leased_at` 列，重启即具备恢复能力。默认无外部邮件或定时分发服务。
 
 ## 本地开发与验收
 

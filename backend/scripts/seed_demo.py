@@ -32,7 +32,13 @@ def seed():
         if not study: study=create_study(StudyIn(name=name,dataset_id=dataset["id"],bootstrap=12,seed=seed_value))
         existing=query("SELECT id FROM runs WHERE study_id=?",(study["id"],),one=True)
         if not existing:
-            run_id=new_id();query("INSERT INTO runs VALUES (?,?,?,?,?,?)",(run_id,study["id"],"queued",None,None,now()));execute_run(run_id)
+            run_id=new_id()
+            query(
+                "INSERT INTO runs (id,study_id,status,result_json,error,created_at,attempt,lease_owner,leased_at)"
+                " VALUES (?,?,?,?,?, ?,0,NULL,NULL)",
+                (run_id,study["id"],"queued",None,None,now()),
+            )
+            execute_run(run_id)
             report=create_report(ReportIn(run_id=run_id,title=name+" · 成果记录"))
             if seed_value==2611: query("UPDATE reports SET status='archived',archived_by='林站长' WHERE id=?",(report["id"],))
     counts={table:query(f"SELECT COUNT(*) AS count FROM {table}",one=True)["count"] for table in ["users","datasets","studies","runs","profiles","reports"]}
